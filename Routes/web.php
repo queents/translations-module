@@ -15,16 +15,4 @@ use Modules\Translations\Vilt\Resources\TranslationsResource;
 |
 */
 
-// Route::middleware(['web', 'auth:sanctum', 'verified'])->prefix('translations')->name('translations.')->group(function () {
-//     Route::get('/', [TranslationsController::class, 'index'])->name('index');
-//     Route::post('/', [TranslationsController::class, 'store'])->name('store');
-//     Route::post('{id}/update', [TranslationsController::class, 'update'])->name('update');
-//     Route::delete('{id}/delete', [TranslationsController::class, 'destroy'])->name('destory');
-//     Route::post('bulk', [TranslationsController::class, 'bulk'])->name('bulk');
-//     Route::get('scan', [TranslationsController::class, 'scan'])->name('scan');
-//     Route::get('export', [TranslationsController::class, 'export'])->name('export');
-//     Route::post('import', [TranslationsController::class, 'import'])->name('import');
-//     Route::post('auto', [TranslationsController::class, 'auto'])->name('auto');
-// });
-
 Route::post('translations/switch', [TranslationsResource::class, 'change'])->name('translations.switch');
