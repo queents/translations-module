@@ -30,7 +30,8 @@
     "require": {
         "queents/vilt": "^1.0",
         "spatie/laravel-translatable": "^6.0",
-        "spatie/laravel-translation-loader": "^2.7"
+        "spatie/laravel-translation-loader": "^2.7",
+        "google/cloud-translate": "^1.12"
     },
     "extra": {
         "laravel": {
