@@ -27,11 +27,12 @@ class TranslationsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        VILT::registerTranslation(Lang::make('language_lines.sidebar')->label(__('Translations')));
+
         $this->registerConfig();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
         VILT::loadResources($this->moduleName);
 
-        VILT::registerTranslation(Lang::make('language_lines.sidebar')->label(__('Translations')));
 
         $this->commands([
             InstallTranslation::class
