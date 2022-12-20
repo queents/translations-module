@@ -2,10 +2,7 @@
 
 namespace Modules\Translations\Services;
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Modules\Translations\Services\Scan;
-use Google\Cloud\Translate\V2\TranslateClient;
+use Illuminate\Support\Facades\File;
 use Modules\Translations\Entities\Translation;
 
 class SaveScan
@@ -26,94 +23,57 @@ class SaveScan
 
         list($trans, $__) = $scanner->getAllViewFilesWithTranslations();
 
-        /** @var Collection $trans */
         /** @var Collection $__ */
 
-        DB::transaction(function () use ($trans, $__) {
-            Translation::query()
-                ->whereNull('deleted_at')
-                ->update([
-                    'deleted_at' => Carbon::now()
-                ]);
-
-            $trans->each(function ($trans) {
-                list($group, $key) = explode('.', $trans, 2);
-                $namespaceAndGroup = explode('::', $group, 2);
-                if (count($namespaceAndGroup) === 1) {
-                    $namespace = '*';
-                    $group = $namespaceAndGroup[0];
-                } else {
-                    list($namespace, $group) = $namespaceAndGroup;
-                }
-                $this->createOrUpdate($namespace, $group, $key);
-            });
-
-            $__->each(function ($default) {
-                $this->createOrUpdate('*', '*', $default);
-            });
+        $collectKeys = collect([]);
+        $__->each(function ($default) use ($collectKeys) {
+            if(!Translation::where('key', $default)->first() && ((!str_contains($default, '{{')) && (!str_contains($default, '}}')) && (!str_contains($default, '::'))  && (!str_contains($default, '.$')))){
+                $collectKeys->put($default, $default);
+            }
         });
+
+        $jsonFolder = File::files(lang_path());
+        foreach($jsonFolder as $getLangName){
+            $fileContent = json_decode(File::get(lang_path($getLangName->getFilename())));
+            $jsonCollection = collect($fileContent);
+            $lastJson = array_merge($jsonCollection->toArray(), $collectKeys->toArray());
+            File::put(lang_path($getLangName->getFilename()), json_encode($lastJson, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
+        }
     }
 
-    /**
-     * @param $namespace
-     * @param $group
-     * @param $key
-     */
-    protected function createOrUpdate($namespace, $group, $key): void
+    public function getKeys(): array
     {
-        $getLocals = config('translations.locals');
-
-        /** @var Translation $translation */
-        $translation = Translation::withTrashed()
-            ->where('namespace', $namespace)
-            ->where('group', $group)
-            ->where('key', $key)
-            ->first();
-
-        $defaultLocale = config('app.locale');
-
-        $text = [];
-        foreach ($getLocals as $lang => $value) {
-            $text[$lang] = "";
+        $langCollection = collect([]);
+        $jsonFolder = File::files(lang_path());
+        $counter = 1;
+        $langNames = [];
+        foreach($jsonFolder as $getLangName){
+            $langNames[] = str_replace('.json', '', $getLangName->getFilename());
         }
+        foreach($jsonFolder as $getLang){
+            $fetchLang = json_decode(File::get(lang_path($getLang->getFilename())));
+            $lang = str_replace('.json', '', $getLang->getFilename());
+            foreach($fetchLang as $index=>$langItem){
+                if((!$langCollection->where('id', $counter)->first())){
+                    $catchByKey = $langCollection->where('key', $index)->first();
+                    if($catchByKey){
+                        $catchByKey->put($lang, $langItem);
+                    }
+                    else {
+                        $initCollection = collect([]);
+                        $initCollection->put("id", $counter);
+                        $initCollection->put("key", $index);
+                        foreach($langNames as $item){
+                            $initCollection->put($item, $langItem);
+                        }
+                        $langCollection->push($initCollection);
+                    }
 
-        if ($translation) {
-            if (!$this->isCurrentTransForTranslationArray($translation, $defaultLocale)) {
-                $translation->restore();
-            }
-        } else {
-            $ifEx = Translation::where('key' , $key)->first();
-            if(!$ifEx){
-                $translation = Translation::make([
-                    'namespace' => $namespace,
-                    'group' => $group,
-                    'key' => $key,
-                    'text' => $text,
-                ]);
-
-                if (!$this->isCurrentTransForTranslationArray($translation, $defaultLocale)) {
-                    $translation->save();
+                    $counter++;
                 }
             }
-
-        }
-    }
-
-    /**
-     * @param Translation $translation
-     * @param $locale
-     * @return bool
-     */
-    private function isCurrentTransForTranslationArray(Translation $translation, $locale): bool
-    {
-        if ($translation->group === '*') {
-            return is_array(__($translation->key, [], $locale));
         }
 
-        if ($translation->namespace === '*') {
-            return is_array(trans($translation->group . '.' . $translation->key, [], $locale));
-        }
-
-        return is_array(trans($translation->namespace . '::' . $translation->group . '.' . $translation->key, [], $locale));
+        return $langCollection->toArray();
     }
 }

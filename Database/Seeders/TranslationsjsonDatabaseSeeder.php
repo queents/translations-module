@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Translations\Database\Seeders;
+namespace Modules\Translationsjson\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
 
-class TranslationsDatabaseSeeder extends Seeder
+class TranslationsjsonDatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.

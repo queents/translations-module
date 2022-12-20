@@ -4,11 +4,6 @@ namespace Modules\Translations\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Modules\Base\Helpers\Resources\VILT;
-use Modules\Menu\Entities\Menus;
-use Modules\Menu\Entities\MenusGroups;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 
 class InstallTranslation extends Command
 {
@@ -44,7 +39,7 @@ class InstallTranslation extends Command
     public function handle()
     {
         $this->info('Install Permissions');
-        Artisan::call('roles:generate language_lines');
+        Artisan::call('roles:generate translations');
         $this->info('Your Translations is ready now');
 
         return Command::SUCCESS;

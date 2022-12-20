@@ -2,6 +2,7 @@
 
 namespace Modules\Translations\Exports;
 
+use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Modules\Translations\Entities\Translation;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -13,31 +14,15 @@ class TranslationsExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        $transaltions = Translation::all();
-
-        foreach ($transaltions as $item) {
-            foreach ($item->text as $key => $lang) {
-                $item->{$key} = $lang;
-            }
-            unset($item->group);
-            unset($item->metadata);
-            unset($item->namespace);
-            unset($item->text);
-            unset($item->created_at);
-            unset($item->updated_at);
-            unset($item->deleted_at);
-        }
-
-        return $transaltions;
+        return Translation::all();
     }
 
     public function headings(): array
     {
-
         $loadLocals = [];
-        $getLocals = config('translations.locals');
-        foreach ($getLocals as $key => $value) {
-            array_push($loadLocals, $key);
+        $jsonFolder = File::files(lang_path());
+        foreach ($jsonFolder as $key => $value) {
+            $loadLocals[] = str_replace('.json', '', $value->getFilename());
         }
 
         return array_merge(["id", "key"], $loadLocals);

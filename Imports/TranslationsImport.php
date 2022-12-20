@@ -2,6 +2,7 @@
 
 namespace Modules\Translations\Imports;
 
+use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Modules\Translations\Entities\Translation;
 use Illuminate\Support\Collection;
@@ -16,17 +17,11 @@ class TranslationsImport implements ToCollection
         $getLocals = config('translations.locals');
 
         foreach ($rows as $row) {
-            $trans = Translation::where('key', $row[1])->where('group', '*')->first();
-            if ($trans) {
-                $text = [];
-                $i = 2;
-                foreach ($getLocals as $lang => $value) {
-                    $text[$lang] = $row[$i];
-                    $i++;
-                }
-
-                $trans->text = $text;
-                $trans->save();
+            $jsonFolder = File::files(lang_path());
+            foreach($jsonFolder as $key=>$getLangName){
+                $fileContent = json_decode(File::get(lang_path($getLangName->getFilename())));
+                $fileContent->{$row[1]} = $row[$key+2];
+                File::put(lang_path($getLangName->getFilename()), json_encode($fileContent, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
             }
         }
     }

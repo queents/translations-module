@@ -13,7 +13,7 @@ class ExportAction extends Actions
         $this->label(__('Export'));
         $this->type("success");
         $this->icon('bx bxs-spreadsheet');
-        $this->url(url('admin/language-lines/export'));
+        $this->url(url('admin/translations/export'));
         $this->can(true);
     }
 }

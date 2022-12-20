@@ -2,17 +2,10 @@
 
 namespace Modules\Translations\Vilt\Resources;
 
-use Google\Cloud\Translate\V2\TranslateClient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
-use Modules\Base\Services\Components\Base\Action;
-use Modules\Base\Services\Components\Base\AddRoute;
+use Illuminate\Support\Facades\File;
 use Modules\Base\Services\Components\Base\Alert;
-use Modules\Base\Services\Components\Base\Modal;
 use Modules\Base\Services\Resource\Resource;
-use Modules\Base\Services\Rows\Media;
 use Modules\Base\Services\Rows\Schema;
 use Modules\Base\Services\Rows\Text;
 use Modules\Translations\Entities\Translation;
@@ -30,31 +23,51 @@ class TranslationsResource extends Resource
     public string $icon = "bx bxs-quote-alt-left";
     public string $group = "Settings";
 
+    public function __construct()
+    {
+        $this->table = "translations";
+        $this->view = "Resource";
+    }
+
     public function rows(): array
     {
         $this->canCreate = false;
+        $this->canDelete = false;
+        $this->canDeleteAny = false;
 
-        return [
+        $jsonFolder = File::files(lang_path());
+        $counter = 0;
+        $langRows = [];
+        foreach($jsonFolder as $getLangName){
+            $langName = str_replace('.json', '', $getLangName->getFilename());
+            $langRows[] = Text::make($langName);
+        }
+
+        return array_merge([
             Text::make('id')
                 ->label(__('ID'))
                 ->edit(false)
                 ->create(false),
 
-            Text::make('group')
-                ->label(__('Group')),
-
-            Text::make('namespace')
-                ->label(__('Namespace')),
-
             Text::make('key')
                 ->label(__('Key'))
                 ->searchable(),
+        ], $langRows);
+    }
 
-            Schema::make('text')
-                ->label(__('Text'))
-                ->sortable(false)
-                ->list('false')
-                ->options($this->getLocals()),
-        ];
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+           "key" => "required|string"
+        ]);
+
+        $jsonFolder = File::files(lang_path());
+        foreach($jsonFolder as $getLangName){
+            $fileContent = json_decode(File::get(lang_path($getLangName->getFilename())));
+            $fileContent->{$request->get('key')} = $request->get(str_replace('.json', '', $getLangName->getFilename()));
+            File::put(lang_path($getLangName->getFilename()), json_encode($fileContent, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
+        }
+
+        return Alert::make(__('Translation Updated Success'))->fire();
     }
 }

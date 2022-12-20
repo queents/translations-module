@@ -1,9 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Modules\Translations\Http\Controllers\TranslationsController;
-use Modules\Translations\Vilt\Resources\TranslationsResource;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,5 +10,8 @@ use Modules\Translations\Vilt\Resources\TranslationsResource;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+use Illuminate\Support\Facades\Route;
+use Modules\Translations\Vilt\Resources\TranslationsResource;
 
 Route::post('translations/switch', [TranslationsResource::class, 'change'])->name('translations.switch');

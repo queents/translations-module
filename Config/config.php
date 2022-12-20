@@ -1,7 +1,7 @@
 <?php
 
 return [
-    "name" => "Translations",
+    "name" => "Translationsjson",
     /*
     |--------------------------------------------------------------------------
     | Paths

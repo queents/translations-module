@@ -17,7 +17,7 @@ trait Components
     {
         return [
             Component::make(ScanAction::class)->action(),
-            Component::make(TranslateAction::class)->action(),
+//            Component::make(TranslateAction::class)->action(),
             Component::make(ImportAction::class)->action(),
             Component::make(ExportAction::class)->action(),
             Component::make(ImportModal::class)->modal(),

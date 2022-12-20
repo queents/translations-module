@@ -13,7 +13,7 @@ class ScanAction extends Actions
         $this->label(__('Scan'));
         $this->type("success");
         $this->icon('bx bx-search-alt');
-        $this->action('language_lines.scan');
+        $this->action('translations.scan');
         $this->can(true);
     }
 }

@@ -2,7 +2,7 @@
 
 
 namespace Modules\Translations\Vilt\Resources\TranslationsResource\Routes;
-use Modules\Translations\Vilt\Resources\TranslationsResource;
+use Modules\Translationsjson\Vilt\Resources\TranslationsResource;
 
 use Modules\Base\Services\Components\Routes;
 

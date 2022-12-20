@@ -13,7 +13,7 @@ class TranslateAction extends Actions
         $this->label(__('Translate'));
         $this->type("success");
         $this->icon('bx bxs-cloud');
-        $this->action('language_lines.translate');
+        $this->action('translations.translate');
         $this->can(true);
     }
 }

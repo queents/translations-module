@@ -17,7 +17,7 @@ class ImportModal extends Modals
             Media::make('excel')->label(__('Excel File'))
         ]);
         $this->buttons([
-            Action::make('upload')->label(__('Upload'))->action('language_lines.import')
+            Action::make('upload')->label(__('Upload'))->action('translations.import')
         ]);
     }
 }
